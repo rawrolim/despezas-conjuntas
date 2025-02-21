@@ -50,7 +50,8 @@ export default function Grupos() {
             if (userOnGroup)
                 throw new Error("Você já está inserido no grupo atual.")
             await addUserOnGroup(cod, user.uid);
-            setCod('')
+            setCod('');
+            getGruposUser();
         } catch (err: any) {
             toast.error(err.toString());
         }
@@ -92,7 +93,7 @@ export default function Grupos() {
                                 <td>{grupo.despesas.length}</td>
                                 <td>{moment(grupo.createdAt).format("DD/MM/YYYY")}</td>
                                 <td>
-                                    <FaEdit style={{cursor:'pointer'}} onClick={()=>router.push(`/grupo/${grupo.id}`)} />    
+                                    <FaEdit style={{ cursor: 'pointer' }} onClick={() => router.push(`/grupo/${grupo.id}`)} />
                                 </td>
                             </tr>
                         )}
