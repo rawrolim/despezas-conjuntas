@@ -55,6 +55,17 @@ async function addDespesas(groupId: string, despesa: Despesa, userId: string) {
     await updateDoc(docRef, dataTemp);
 }
 
+async function deleteDespesa(groupId: string, despesa: Despesa, userId: string){
+    const docRef = doc(db, 'groups', groupId);
+    const dataTemp: Grupo | undefined | any = (await getGroups(userId)).find(d => d.id == groupId);
+    if(!dataTemp)
+        throw new Error("Grupo não encontrado.");
+
+    const index = dataTemp.despesas.findIndex((d: Grupo | any) => d.name == despesa.name && d.valor == despesa.valor);
+    dataTemp.despesas.splice(index,1)
+    await updateDoc(docRef, dataTemp);
+}
+
 async function addUserOnGroup(groupId: string, userId: string) {
     const docRef = doc(db, 'groups', groupId);
     const dataTemp: any = (await getGroups('')).find(d => d.id == groupId);
@@ -62,4 +73,4 @@ async function addUserOnGroup(groupId: string, userId: string) {
     await updateDoc(docRef, dataTemp);
 }
 
-export { createGroup, getGroups, deleteGroup, addDespesas, addUserOnGroup }
+export { createGroup, getGroups, deleteGroup, addDespesas, addUserOnGroup, deleteDespesa }
