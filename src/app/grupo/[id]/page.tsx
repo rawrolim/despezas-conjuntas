@@ -5,7 +5,8 @@ import { useUserContext } from "@/hooks/useUserContext";
 import Grupo from "@/interfaces/Grupo.interface"
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react"
-import { FaPlus } from "react-icons/fa";
+import { FaDoorOpen, FaPlus, FaRemoveFormat } from "react-icons/fa";
+import { FaPersonWalkingArrowRight } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import { Button, Input } from "reactstrap";
 
@@ -27,11 +28,11 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
         if (res) {
             setGroup(res);
             const rs_users = await getUsers();
-            const usersFiltred = rs_users.map(u => {
+            const rs_users_filtred = rs_users.filter(u => {
                 const uData = u.data();
-                if (res.users.includes(uData.userId))
-                    return uData;
+                return res.users.includes(uData.userId)
             });
+            const usersFiltred = rs_users_filtred.map(u => u.data());
             let salarioTotal = 0;
             if (usersFiltred) {
                 usersFiltred.map(u => {
@@ -77,6 +78,9 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
                 <Button color='primary' data-bs-toggle="modal" data-bs-target="#exampleModal">
                     <FaPlus /> Cadastrar Despesa
                 </Button>
+                <Button color='danger'>
+                    <FaDoorOpen /> Sair do grupo
+                </Button>
             </div>
 
             <div className='col-12 col-md-6 p-2'>
@@ -89,12 +93,12 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
                         </tr>
                     </thead>
                     <tbody>
-                        {usuarios.map((u, i) => {
+                        {usuarios && usuarios.map((u, i) => {
                             return (
                                 <tr key={i} >
                                     <td>{u.userName}</td>
-                                    <td>{u.porcentagem.toFixed(2)}%</td>
-                                    <td>R${u.salario.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</td>
+                                    <td>{(u.porcentagem * 100).toFixed(2)}%</td>
+                                    <td>R${u.salario.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                 </tr>
                             )
                         })}
@@ -108,9 +112,9 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
                         <tr>
                             <th>Despesa</th>
                             <th>Valor</th>
-                            {usuarios.map(u => {
+                            {usuarios && usuarios.map((u,i) => {
                                 return (
-                                    <th>
+                                    <th key={`th${i}`}>
                                         {u.userName}
                                     </th>
                                 )
@@ -118,15 +122,15 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
                         </tr>
                     </thead>
                     <tbody>
-                        {group?.despesas.map((d, i) => {
+                        {group && group.despesas && group?.despesas.map((d, i) => {
                             return (
                                 <tr key={i} >
                                     <td>{d.name}</td>
-                                    <td>R${d.valor.toFixed(2)}</td>
-                                    {usuarios.map((u,index) => {
+                                    <td>R${d.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                    {usuarios && usuarios.map((u,index) => {
                                         return (
                                             <td key={`i-${index}`}>
-                                                R${(u.porcentagem * d.valor).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                                                R${(u.porcentagem * d.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </td>
                                         )
                                     })}
