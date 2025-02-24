@@ -1,11 +1,12 @@
 'use client'
-import { addDespesas, getGroups } from "@/database/Grupo.database";
+import { addDespesas, deleteDespesa, getGroups } from "@/database/Grupo.database";
 import { getUsers } from "@/database/User.database";
 import { useUserContext } from "@/hooks/useUserContext";
+import Despesa from "@/interfaces/Despesa.interface";
 import Grupo from "@/interfaces/Grupo.interface"
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react"
-import { FaDoorOpen, FaPlus, FaRemoveFormat } from "react-icons/fa";
+import { FaDoorOpen, FaPlus, FaRemoveFormat, FaTrash } from "react-icons/fa";
 import { FaPersonWalkingArrowRight } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import { Button, Input } from "reactstrap";
@@ -72,6 +73,20 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
         }
     }
 
+    async function deleteDespesaHandler(despesa: Despesa){
+        try{
+            const response = confirm("Deseja realmente deletar a despesa?");
+            if(!response)
+                return
+            const grupoId = (await params).id; 
+            await deleteDespesa(grupoId,despesa, user.uid);
+            getCurrentGroup();
+            toast.success("Despesa deletada com sucesso");
+        }catch(err:any){
+            toast.error(err.toString());
+        }
+    }
+
     return (
         <>
             <div className='col-12 mb-3 d-flex gap-2'>
@@ -112,13 +127,14 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
                         <tr>
                             <th>Despesa</th>
                             <th>Valor</th>
-                            {usuarios && usuarios.map((u,i) => {
+                            {usuarios && usuarios.map((u, i) => {
                                 return (
                                     <th key={`th${i}`}>
                                         {u.userName}
                                     </th>
                                 )
                             })}
+                            <th>Opções</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -127,13 +143,14 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
                                 <tr key={i} >
                                     <td>{d.name}</td>
                                     <td>R${d.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                    {usuarios && usuarios.map((u,index) => {
+                                    {usuarios && usuarios.map((u, index) => {
                                         return (
                                             <td key={`i-${index}`}>
                                                 R${(u.porcentagem * d.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </td>
                                         )
                                     })}
+                                    <td><FaTrash style={{cursor:'pointer'}} onClick={()=>deleteDespesaHandler(d)} /></td>
                                 </tr>
                             )
                         })}
