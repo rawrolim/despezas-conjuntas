@@ -1,11 +1,11 @@
 'use client'
-import { addUserOnGroup, createGroup, getGroups } from "@/database/Grupo.database";
+import { addUserOnGroup, createGroup, deleteGroup, getGroups } from "@/database/Grupo.database";
 import { useUserContext } from "@/hooks/useUserContext";
 import Grupo from "@/interfaces/Grupo.interface";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react"
-import { FaEdit, FaPlus } from "react-icons/fa";
+import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { FaPeopleGroup } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import { Button, ButtonGroup, Input } from "reactstrap";
@@ -51,11 +51,27 @@ export default function Grupos() {
                 throw new Error("Você já está inserido no grupo atual.")
             await addUserOnGroup(cod, user.uid);
             setCod('');
-            getGruposUser();
+            await getGruposUser();
         } catch (err: any) {
             toast.error(err.toString());
         }
+    }
 
+    async function deleteGroupHandler(id:string){
+        try {
+            if(!id)
+                throw new Error("Erro ao deletar grupo");
+
+            const response = confirm("Tem certeza que deseja deletar o grupo?");
+            if(!response)
+                return
+
+            await deleteGroup(id);
+            await getGruposUser(); 
+            toast.success("Grupo deletado com sucesso.");
+        } catch (err: any) {
+            toast.error(err.toString());
+        }
     }
 
     useEffect(() => {
@@ -93,7 +109,8 @@ export default function Grupos() {
                                 <td>{grupo.despesas.length}</td>
                                 <td>{moment(grupo.createdAt).format("DD/MM/YYYY")}</td>
                                 <td>
-                                    <FaEdit style={{ cursor: 'pointer' }} onClick={() => router.push(`/grupo/${grupo.id}`)} />
+                                    <FaEdit style={{ cursor: 'pointer', marginRight: '5px' }} onClick={() => router.push(`/grupo/${grupo.id}`)} />
+                                    <FaTrash style={{ cursor: 'pointer' }} onClick={()=>deleteGroupHandler(grupo.id || "")} />
                                 </td>
                             </tr>
                         )}
