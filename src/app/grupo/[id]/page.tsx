@@ -4,19 +4,22 @@ import { getUsers } from "@/database/User.database";
 import { useUserContext } from "@/hooks/useUserContext";
 import Despesa from "@/interfaces/Despesa.interface";
 import Grupo from "@/interfaces/Grupo.interface"
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react"
-import { FaDoorOpen, FaPlus, FaRemoveFormat, FaTrash } from "react-icons/fa";
-import { FaPersonWalkingArrowRight } from "react-icons/fa6";
+import { Doughnut, Pie } from "react-chartjs-2";
+import { FaDoorOpen, FaPlus, FaTrash } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { Button, Input } from "reactstrap";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import User from "@/interfaces/User.interface";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function GrupoPage({ params }: { params: Promise<{ id: string }> }) {
     const [group, setGroup] = useState<Grupo>();
     const [valorDespesa, setValorDespesa] = useState(0);
     const [nomeDespesa, setNomeDespesa] = useState("");
     const { user } = useUserContext();
-    const [usuarios, setUsuarios] = useState<any[]>([])
+    const [usuarios, setUsuarios] = useState<any[]>([]);
 
     useEffect(() => {
         getCurrentGroup();
@@ -40,7 +43,7 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
                     if (u)
                         salarioTotal += u.salario
                 })
-                const users = usersFiltred.map(u => {
+                const users: (User & {porcetagem: number})[] | any = usersFiltred.map(u => {
                     if (u)
                         return {
                             ...u,
@@ -51,6 +54,8 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
             }
         }
     }
+
+    console.log( usuarios.map((u)=>u.userName))
 
     async function newDespesa() {
         try {
@@ -73,16 +78,16 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
         }
     }
 
-    async function deleteDespesaHandler(despesa: Despesa){
-        try{
+    async function deleteDespesaHandler(despesa: Despesa) {
+        try {
             const response = confirm("Deseja realmente deletar a despesa?");
-            if(!response)
+            if (!response)
                 return
-            const grupoId = (await params).id; 
-            await deleteDespesa(grupoId,despesa, user.uid);
+            const grupoId = (await params).id;
+            await deleteDespesa(grupoId, despesa, user.uid);
             getCurrentGroup();
             toast.success("Despesa deletada com sucesso");
-        }catch(err:any){
+        } catch (err: any) {
             toast.error(err.toString());
         }
     }
@@ -98,7 +103,7 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
                 </Button>
             </div>
 
-            <div className='col-12 col-md-6 p-2'>
+            <div className='col-12 col-md-6 p-2 table-responsive'>
                 <table className="table table-striped">
                     <thead>
                         <tr>
@@ -121,7 +126,7 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
                 </table>
             </div>
 
-            <div className='col-12 col-md-6 p-2'>
+            <div className='col-12 col-md-6 p-2 table-responsive'>
                 <table className="table table-striped">
                     <thead>
                         <tr>
@@ -150,12 +155,27 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
                                             </td>
                                         )
                                     })}
-                                    <td><FaTrash style={{cursor:'pointer'}} onClick={()=>deleteDespesaHandler(d)} /></td>
+                                    <td><FaTrash style={{ cursor: 'pointer' }} onClick={() => deleteDespesaHandler(d)} /></td>
                                 </tr>
                             )
                         })}
                     </tbody>
                 </table>
+            </div>
+
+            <div className="col-12 col-md-6">
+                <Doughnut
+                    data={{
+                        labels: usuarios.map((u)=>u.userName),
+                        datasets: [
+                            {
+                                backgroundColor: '#8bcaa3',
+                                data: usuarios.map((u)=>u.salario),
+                                borderWidth: 1,
+                            },
+                        ],
+                    }}
+                />
             </div>
 
             <div className="modal fade" id="exampleModal" tabIndex={-1} aria-labelledby="exampleModalLabel" aria-hidden="true">
