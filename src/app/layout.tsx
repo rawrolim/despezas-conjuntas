@@ -26,7 +26,7 @@ export default function RootLayout({ children, }: Readonly<{ children: React.Rea
 
   return (
     <html lang="pt-br" className="vh-100 vw-100">
-      <body className={`${geistSans.variable} ${geistMono.variable} col-12 vh-100`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} col-12`}>
         <UserProvider>
           <NavComponent />
           <ToastContainer />
@@ -39,6 +39,9 @@ export default function RootLayout({ children, }: Readonly<{ children: React.Rea
           </main>
         </UserProvider>
       </body>
+      <footer className="text-muted text-center my-5">
+        Sistema desenvolvido por Rawlinson Rolim
+      </footer>
     </html>
   );
 }

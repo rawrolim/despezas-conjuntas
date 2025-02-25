@@ -88,7 +88,7 @@ export default function Grupos() {
                     <FaPlus /> Cadastrar Grupo
                 </Button>
             </div>
-            <div className="col-12 bg-white rounded border d-flex flex-wrap">
+            <div className="col-12 bg-white rounded border d-flex flex-wrap table-responsive">
                 <table className="table table-striped ">
                     <thead>
                         <tr>

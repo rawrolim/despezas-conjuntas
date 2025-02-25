@@ -163,7 +163,7 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
                 </table>
             </div>
 
-            <div className="col-12 col-md-6">
+            <div className="col-12 col-md-6 p-5">
                 <Doughnut
                     data={{
                         labels: usuarios.map((u)=>u.userName),
